@@ -291,6 +291,8 @@
       "pool" : [
         {"weight" : 0.008, "item" : [ "ultrastim", 1]},
         {"weight" : 0.005, "item" : [ "thesauce", 1]},
+        {"weight" : 0.01, "item" : [ "powderednarcotics", 1]},
+        {"weight" : 0.01, "item" : [ "myphisinjector", 1]},
         {"weight" : 0.01, "item" : [ "shieldpatch", 1]},
         {"weight" : 0.005, "item" : [ "uberstim", 1]},
         {"weight" : 0.01, "item" : [ "waterstim", 1]},
@@ -572,6 +574,7 @@
         {"weight" : 0.007, "item" : [ "laspistol", 1]},
         {"weight" : 0.007, "item" : [ "bloodyknife", 1]},
         {"weight" : 0.005, "item" : [ "ffwizardhat", 1]},
+        {"weight" : 0.04, "item" : [ "vai-recipe", 1]},
         {"weight" : 0.09, "item" : ["ironkatana2", 1]},
         {"weight" : 0.01, "item" : [ "luridmagazine-codex", 1]}
       ]

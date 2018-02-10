@@ -14,7 +14,7 @@ function init()
   if player.hasItem({name = "statustablet", count = 1}) then
     self.gateUid = "ancientgate2"
   else
-    self.gateUid = config.getParameter("gateUid")
+    self.gateUid = "ancientgate"
   end
   
   self.techstationUid = config.getParameter("techstationUid")
@@ -50,27 +50,37 @@ end
 
 function questStart()
   player.upgradeShip(config.getParameter("shipUpgrade"))
+  self.gateUid = "ancientgate"
 end
+
+
+function findGateType()
+  if player.hasItem({name = "statustablet", count = 1}) then 
+    self.gateUid = "ancientgate2"  
+  else
+    self.gateUid = "ancientgate"
+  end  
+
+  if player.hasItem({name = self.gateRepairItem, count = self.gateRepairCount}) or storage.stage >= 3 and player.hasItem({name = "statustablet", count = 1}) then 
+    self.gateUid = "ancientgate2" 
+  else  
+    self.gateUid = "ancientgate"
+  end  
+end
+
 
 function update(dt)
   self.state:update(dt)
 
   vinjGreeting()
 
-  if not player.hasItem({name = "statustablet", count = 1}) then
-    self.gateUid = "ancientgate2"
-  else
-    self.gateUid = config.getParameter("gateUid")
-  end
-    
+  findGateType()
 
-  if player.hasItem({name = self.gateRepairItem, count = self.gateRepairCount}) or storage.stage >= 3 then 
-    self.gateUid = "ancientgate2"
-  end
-  
+
   -- Skip ahead if the gate is already active 
   if storage.stage < 5 and gateActive() and player.hasItem({name = "statustablet", count = 1}) then
     storage.stage = 5
+    self.gateUid = "ancientgate2" 
     self.state:set(gateRepaired)
   elseif storage.stage < 5 and gateActive() and not player.hasItem({name = "statustablet", count = 1}) then
     player.radioMessage("fu_start_needstricorder2")
@@ -110,20 +120,18 @@ end
 
 function explore()
   quest.setObjectiveList({{self.descriptions.explore, false}})
-
+  self.gateUid = config.getParameter("gateUid")
+  
   -- Wait until the player is no longer on the ship
   local findGate = util.uniqueEntityTracker(self.gateUid, self.compassUpdate)
   local buffer = 0
   while storage.exploreTimer < self.exploreTime do
-    -- quest.setProgress(math.min(storage.exploreTimer / self.exploreTime, 1.0)) -- Debug
-    buffer = buffer + script.updateDt()
-
     local gatePosition = findGate()
     if gatePosition then
       -- Gate is on this world, put buffer onto the exploration timer
       storage.exploreTimer = storage.exploreTimer + buffer
       buffer = 0
-      if world.magnitude(mcontroller.position(), gatePosition) < 50 then
+      if world.magnitude(mcontroller.position(), gatePosition) < 200 then
         self.state:set(gateFound)
         coroutine.yield()
       end
@@ -149,11 +157,12 @@ function findGate()
   quest.setObjectiveList({{self.descriptions.findGate, false}})
 
   -- Wait until the player is no longer on the ship
-  local findGate = util.uniqueEntityTracker(self.gateUid, self.compassUpdate)
+  -- it is hard-set to ancientgate rather than self.gateUid to make sure the initial pointer goes to the right place.
+  local findGate = util.uniqueEntityTracker("ancientgate", self.compassUpdate)
   while true do
     local result = findGate()
     questutil.pointCompassAt(result)
-    if result and world.magnitude(mcontroller.position(), result) < 50 then
+    if result and world.magnitude(mcontroller.position(), result) < 100 then
       self.state:set(gateFound)
     end
     coroutine.yield()
@@ -227,6 +236,7 @@ function repairGate()
     if not player.hasItem({name = self.gateRepairItem, count = self.gateRepairCount}) and player.hasItem({name = "statustablet", count = 1}) then
       storage.stage = 3
       self.gateUid = "ancientgate2"
+      questutil.pointCompassAt(findGate())
       self.state:set(self.stages[storage.stage])
     elseif not player.hasItem({name = "statustablet", count = 1}) then
       storage.stage = 3
