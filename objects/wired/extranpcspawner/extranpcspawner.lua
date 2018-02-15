@@ -55,7 +55,7 @@ function spawn()
       local npcSpecies = util.randomFromList(self.npcSpecies)      
 	  self.npcParams.level = self.npcLevel and util.randomInRange(self.npcLevel) or world.threatLevel()
 
-      local npcId = world.spawnNpc(spawnPosition, npcSpecies, npcType, self.npcParams.level, nil, npcParameter or {})
+      local npcId = world.spawnNpc(spawnPosition, npcSpecies, npcType, self.npcParams.level, nil, self.npcParams or {})
       if npcId ~= 0 then
         storage.stock = storage.stock - 1
         return
